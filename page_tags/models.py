@@ -8,4 +8,4 @@ class Page(models.Model):
 class Tag(models.Model):
     type = models.TextField(db_index=True)
     value = models.TextField()
-    page_id = models.ForeignKey(Page, on_delete=models.CASCADE)
+    page = models.ForeignKey(Page, on_delete=models.CASCADE)

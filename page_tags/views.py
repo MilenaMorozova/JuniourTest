@@ -15,7 +15,7 @@ page_backend = PageBackend()
 @request_type('POST')
 def add_page_info(request, **kwargs):
     try:
-        page_id, tags = page_backend.get_page_tags(request.POST['url'])
+        page_id, tags = page_backend.create_page_info(request.POST['url'])
     except KeyError:
         return HttpResponseNotFound('No URL')
     except PageTagsException as e:

@@ -27,21 +27,23 @@ class PageBackend:
                 tags[child.name].append(child.text)
         return tags
 
-    def __save_page_tags(self, page, tags):
+    def __save_page_info_to_db(self, tags):
+        page = Page.objects.create()
+
         if not tags:
             return
 
         for tag_name in tags:
             if not tags[tag_name]:
                 continue
-            Tag.objects.bulk_create([Tag(type=tag_name, value=value, page_id=page) for value in tags[tag_name]])
+            Tag.objects.bulk_create([Tag(type=tag_name, value=value, page=page) for value in tags[tag_name]])
 
-    def get_page_tags(self, url):
+        return page.pk
+
+    def create_page_info(self, url):
         tags = self.__parse_page(url)
-
-        page = Page.objects.create()
-        self.__save_page_tags(page, tags)
-        return page.pk, tags
+        page_id = self.__save_page_info_to_db(tags)
+        return page_id, tags
 
     def is_existing_page(self, page_id):
         return Page.objects.filter(pk=page_id).exists()
@@ -50,7 +52,7 @@ class PageBackend:
         if not self.is_existing_page(page_id):
             raise PageDoesNotExistException()
 
-        tags = Tag.objects.filter(page_id=page_id)
+        tags = Tag.objects.filter(page=page_id)
         result = {'h1': tags.filter(type='h1').count(),
                   'h2': tags.filter(type='h2').count(),
                   'h3': tags.filter(type='h3').count(),
